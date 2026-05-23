@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>LLM Post-Training Cookbook</title>
+  <meta name="description" content="面向中文读者的大模型 Post-Training 教程：SFT、RL、RLHF、DPO、OPD、蒸馏、评估与部署。">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css">
+  <style>
+    :root {
+      --base-font-size: 16px;
+      --base-line-height: 1.75;
+      --theme-color: #0f7b6c;
+      --link-color: #0b6f61;
+      --sidebar-width: 282px;
+      --sidebar-background: #fbfaf6;
+      --sidebar-border-color: #e4dfd3;
+      --sidebar-nav-link-color--active: #0f7b6c;
+      --sidebar-nav-link-border-color--active: #0f7b6c;
+      --heading-h1-border-color: #0f7b6c;
+      --code-theme-background: #f5f1e8;
+      --code-inline-background: #eee8dc;
+      --code-inline-color: #8b3f16;
+      --table-head-background: #f0eadc;
+      --table-row-even-background: #fbf8f0;
+      --blockquote-background: #f4fbf8;
+      --blockquote-border-color: #0f7b6c;
+      --mark-background: #fff0bd;
+    }
+
+    [data-theme="dark"] {
+      --base-background-color: #12140f;
+      --base-color: #d8d5c9;
+      --theme-color: #5ec6ad;
+      --link-color: #74d1bb;
+      --link-color--hover: #b6eadc;
+      --heading-color: #f2ead8;
+      --heading-h1-color: #fff2d0;
+      --heading-h1-border-color: #5ec6ad;
+      --heading-h2-color: #f0e5cf;
+      --heading-h2-border-color: #34382d;
+      --sidebar-background: #161910;
+      --sidebar-border-color: #303326;
+      --sidebar-name-color: #f1e7d1;
+      --sidebar-nav-link-color: #c7c2b5;
+      --sidebar-nav-link-color--active: #5ec6ad;
+      --sidebar-nav-link-color--hover: #a8e5d4;
+      --sidebar-nav-link-background--active: rgba(94, 198, 173, 0.1);
+      --sidebar-nav-link-background--hover: rgba(94, 198, 173, 0.06);
+      --sidebar-nav-link-border-color--active: #5ec6ad;
+      --sidebar-nav-strong-color: #f0dfb8;
+      --search-background: #161910;
+      --search-input-background-color: #202419;
+      --search-input-background-color--focus: #262b1f;
+      --search-input-border-color: #3a3f31;
+      --search-input-color: #e4dfd2;
+      --search-input-placeholder-color: #8e897c;
+      --code-theme-background: #1c2118;
+      --code-theme-text: #ddd8cc;
+      --code-theme-comment: #8d927e;
+      --code-theme-keyword: #d5a657;
+      --code-theme-function: #74d1bb;
+      --code-theme-variable: #e38d6b;
+      --code-inline-background: #24291d;
+      --code-inline-color: #f1bd73;
+      --blockquote-background: rgba(94, 198, 173, 0.08);
+      --blockquote-border-color: #5ec6ad;
+      --blockquote-color: #c8d8d0;
+      --table-head-background: #202419;
+      --table-head-border-color: #33382b;
+      --table-body-border-color: #33382b;
+      --table-cell-border-color: #33382b;
+      --table-row-even-background: #171b12;
+      --hr-border: 1px solid #303326;
+    }
+
+    body {
+      font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(15, 123, 108, 0.08), transparent 28rem),
+        linear-gradient(180deg, rgba(245, 241, 232, 0.5), transparent 20rem);
+    }
+
+    [data-theme="dark"] body {
+      background:
+        radial-gradient(circle at 100% 0%, rgba(94, 198, 173, 0.08), transparent 28rem),
+        linear-gradient(180deg, rgba(54, 59, 42, 0.35), transparent 20rem);
+    }
+
+    .markdown-section {
+      max-width: 920px;
+      padding: 34px 48px 64px;
+    }
+
+    .markdown-section h1 {
+      font-size: 2.45rem;
+      line-height: 1.18;
+      letter-spacing: 0;
+      padding-bottom: 0.38em;
+      border-bottom: 2px solid var(--heading-h1-border-color);
+    }
+
+    .markdown-section h2 {
+      margin-top: 2.2rem;
+      letter-spacing: 0;
+    }
+
+    .markdown-section h3 {
+      margin-top: 1.55rem;
+      letter-spacing: 0;
+    }
+
+    .markdown-section table {
+      display: table;
+      width: 100%;
+      font-size: 0.95rem;
+    }
+
+    .markdown-section pre {
+      border: 1px solid rgba(120, 110, 90, 0.18);
+      border-radius: 8px;
+    }
+
+    .markdown-section code {
+      font-family: "SF Mono", "Cascadia Code", Consolas, monospace;
+    }
+
+    .reading-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 3px;
+      background: linear-gradient(90deg, #0f7b6c, #d28d24, #b0422d);
+      z-index: 10000;
+      transition: width 0.12s linear;
+    }
+
+    .top-btn-group {
+      position: fixed;
+      top: 12px;
+      right: 24px;
+      z-index: 999;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .app-nav {
+      left: auto !important;
+      right: 84px !important;
+      width: auto !important;
+      margin: 20px 0 0 0 !important;
+    }
+
+    .dark-toggle-btn,
+    .back-to-top {
+      border: 1.5px solid var(--theme-color);
+      border-radius: 50%;
+      background: var(--base-background-color, #fff);
+      color: var(--theme-color);
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dark-toggle-btn {
+      width: 34px;
+      height: 34px;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .dark-toggle-btn:hover,
+    .back-to-top:hover {
+      background: var(--theme-color);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .back-to-top {
+      position: fixed;
+      right: 24px;
+      bottom: 28px;
+      width: 40px;
+      height: 40px;
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+    }
+
+    .back-to-top.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .hero-panel {
+      margin: 8px 0 28px;
+      padding: 28px;
+      border: 1px solid #e4dfd3;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #fffaf0 0%, #edf8f4 52%, #fff 100%);
+    }
+
+    [data-theme="dark"] .hero-panel {
+      border-color: #303326;
+      background: linear-gradient(135deg, #1c2118 0%, #182a24 52%, #12140f 100%);
+    }
+
+    .hero-panel p {
+      margin: 0.45rem 0;
+      font-size: 1.05rem;
+    }
+
+    .lesson-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
+      margin: 18px 0 24px;
+    }
+
+    .concept-card,
+    .path-card,
+    .checkpoint,
+    .warning,
+    .recipe-card {
+      border: 1px solid #e4dfd3;
+      border-radius: 8px;
+      padding: 16px 18px;
+      background: #fffdf8;
+    }
+
+    [data-theme="dark"] .concept-card,
+    [data-theme="dark"] .path-card,
+    [data-theme="dark"] .checkpoint,
+    [data-theme="dark"] .warning,
+    [data-theme="dark"] .recipe-card {
+      border-color: #303326;
+      background: #171b12;
+    }
+
+    .concept-card strong,
+    .path-card strong,
+    .recipe-card strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--theme-color);
+    }
+
+    .checkpoint {
+      border-left: 4px solid #0f7b6c;
+      background: #f3fbf7;
+    }
+
+    .warning {
+      border-left: 4px solid #b0422d;
+      background: #fff7f1;
+    }
+
+    [data-theme="dark"] .checkpoint {
+      background: rgba(94, 198, 173, 0.08);
+    }
+
+    [data-theme="dark"] .warning {
+      background: rgba(176, 66, 45, 0.13);
+    }
+
+    .tagline {
+      color: #6b6254;
+      font-size: 1.08rem;
+    }
+
+    [data-theme="dark"] .tagline {
+      color: #bfb8a7;
+    }
+
+    .mermaid {
+      margin: 20px 0;
+      padding: 14px;
+      border: 1px solid #e4dfd3;
+      border-radius: 8px;
+      background: #fffdf8;
+      overflow: auto;
+    }
+
+    [data-theme="dark"] .mermaid {
+      border-color: #303326;
+      background: #171b12;
+    }
+
+    @media (max-width: 760px) {
+      :root {
+        --base-font-size: 15px;
+      }
+
+      .markdown-section {
+        padding: 24px 18px 56px 42px;
+      }
+
+      .markdown-section h1 {
+        font-size: 1.95rem;
+      }
+
+      .top-btn-group {
+        top: 10px;
+        right: 14px;
+      }
+
+      .app-nav {
+        display: none;
+      }
+
+      .hero-panel {
+        padding: 20px;
+      }
+
+      .lesson-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="reading-progress" id="reading-progress"></div>
+  <div id="app"></div>
+
+  <script>
+    window.$docsify = {
+      name: 'LLM Post-Training Cookbook',
+      repo: '',
+      loadSidebar: true,
+      loadNavbar: true,
+      subMaxLevel: 3,
+      auto2top: true,
+      coverpage: false,
+      search: {
+        placeholder: '搜索：SFT、GRPO、DPO、OPD...',
+        noData: '没有找到结果',
+        depth: 4,
+      },
+      pagination: {
+        previousText: '上一篇',
+        nextText: '下一篇',
+        crossChapter: true,
+        crossChapterText: true,
+      },
+      copyCode: {
+        buttonText: '复制',
+        errorText: '复制失败',
+        successText: '已复制',
+      },
+      markdown: {
+        renderer: {
+          code(code, lang) {
+            if (lang === 'mermaid') {
+              return '<div class="mermaid">' + code + '</div>';
+            }
+            return this.origin.code.apply(this, arguments);
+          }
+        }
+      },
+    };
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: false, theme: 'default' });
+
+    window.$docsify.plugins = (window.$docsify.plugins || []).concat([
+      function(hook) {
+        hook.doneEach(function() {
+          var group = document.getElementById('top-btn-group');
+          if (!group) {
+            group = document.createElement('div');
+            group.id = 'top-btn-group';
+            group.className = 'top-btn-group';
+            document.body.appendChild(group);
+          }
+
+          if (!document.getElementById('dark-toggle')) {
+            var darkBtn = document.createElement('button');
+            darkBtn.id = 'dark-toggle';
+            darkBtn.className = 'dark-toggle-btn';
+            darkBtn.title = '切换深色模式';
+            var isDark = localStorage.getItem('theme') === 'dark';
+            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            darkBtn.textContent = isDark ? '日' : '夜';
+            darkBtn.addEventListener('click', function() {
+              var current = document.documentElement.getAttribute('data-theme');
+              var next = current === 'dark' ? 'light' : 'dark';
+              document.documentElement.setAttribute('data-theme', next);
+              localStorage.setItem('theme', next);
+              darkBtn.textContent = next === 'dark' ? '日' : '夜';
+              mermaid.initialize({ startOnLoad: false, theme: next === 'dark' ? 'dark' : 'default' });
+              document.querySelectorAll('.mermaid[data-processed]').forEach(function(el) {
+                el.removeAttribute('data-processed');
+              });
+            });
+            group.appendChild(darkBtn);
+          }
+        });
+
+        hook.doneEach(function() {
+          document.querySelectorAll('.mermaid').forEach(function(el) {
+            if (el.getAttribute('data-processed')) return;
+            var code = el.textContent;
+            var id = 'mermaid-' + Math.random().toString(36).slice(2);
+            mermaid.render(id, code).then(function(result) {
+              el.innerHTML = result.svg;
+              el.setAttribute('data-processed', 'true');
+            }).catch(function(err) {
+              console.warn('Mermaid render error:', err);
+            });
+          });
+        });
+      }
+    ]);
+
+    (function() {
+      var saved = localStorage.getItem('theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+
+      var btn = document.createElement('button');
+      btn.className = 'back-to-top';
+      btn.title = '回到顶部';
+      btn.textContent = '↑';
+      btn.addEventListener('click', function() {
+        var main = document.querySelector('.markdown-section');
+        if (main) main.scrollIntoView({ behavior: 'smooth' });
+        else window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      document.body.appendChild(btn);
+
+      function getScrollContainer() {
+        return document.querySelector('main.content') || document.querySelector('.content') || window;
+      }
+
+      var ticking = false;
+      function onScroll() {
+        if (ticking) return;
+        requestAnimationFrame(function() {
+          var container = getScrollContainer();
+          var scrollTop, scrollHeight, clientHeight;
+          if (container === window) {
+            scrollTop = window.scrollY;
+            scrollHeight = document.documentElement.scrollHeight;
+            clientHeight = window.innerHeight;
+          } else {
+            scrollTop = container.scrollTop;
+            scrollHeight = container.scrollHeight;
+            clientHeight = container.clientHeight;
+          }
+
+          btn.classList.toggle('visible', scrollTop > 280);
+          var progress = scrollHeight > clientHeight ? (scrollTop / (scrollHeight - clientHeight)) * 100 : 0;
+          var bar = document.getElementById('reading-progress');
+          if (bar) bar.style.width = Math.min(progress, 100) + '%';
+          ticking = false;
+        });
+        ticking = true;
+      }
+
+      function attachScroll() {
+        var container = getScrollContainer();
+        (container === window ? window : container).addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+      }
+
+      window.addEventListener('DOMContentLoaded', function() {
+        setTimeout(attachScroll, 500);
+      });
+    })();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
+</body>
+</html>
