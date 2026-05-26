@@ -1,11 +1,8 @@
 - [首页](/)
 - [10 分钟快速入门](/docs/quick-start.md)
 
-- **现代流水线**
-  - [0. 现代后训练标准流水线](/docs/00-modern-pipeline.md)
-
 - **第一部分：建立地图**
-  - [1. Post-Training 全景](/docs/01-overview.md)
+  - [1. Post-Training 全景与现代流水线](/docs/01-overview.md)
   - [2. 数据、模板与 Renderer](/docs/02-data-rendering.md)
 
 - **第二部分：监督学习**

@@ -63,8 +63,7 @@ flowchart LR
 | 章节 | 主题 | 你会获得 |
 |---|---|---|
 | [快速入门](./docs/quick-start.md) | 10 分钟建立全局地图 | 各技术的用途、优先级和选择表 |
-| [0. 现代后训练标准流水线](./docs/00-modern-pipeline.md) | 从 Base 到统一模型的现代顺序 | SFT、专家 RL、Agentic RL、OPD/MOPD、General RL 的完整主线 |
-| [1. Post-Training 全景](./docs/01-overview.md) | 为什么预训练不等于产品能力 | 后训练目标、训练信号、常见流水线 |
+| [1. Post-Training 全景与现代流水线](./docs/01-overview.md) | 为什么预训练不等于产品能力 | 后训练目标、现代流水线、训练信号、能力合并 |
 | [2. 数据、模板与 Renderer](./docs/02-data-rendering.md) | 模型到底在看什么 token | chat template、mask、数据格式、静默错误 |
 | [3. SFT](./docs/03-sft.md) | 监督微调的正确打开方式 | 数据质量、训练循环、过拟合 smoke test |
 | [4. RL 基础](./docs/04-rl-foundations.md) | 把生成看成决策过程 | policy、reward、trajectory、KL、advantage |

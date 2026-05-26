@@ -181,12 +181,11 @@ sequenceDiagram
 
 如果你从零开始，建议按这个顺序：
 
-1. 读 [现代后训练标准流水线](./00-modern-pipeline.md)，先理解从 base 到 final model 的顺序。
-2. 读 [Post-Training 全景](./01-overview.md)，建立完整地图。
-3. 读 [数据、模板与 Renderer](./02-data-rendering.md)，理解为什么 chat template、thinking 和 tool schema 很重要。
-4. 读 [SFT](./03-sft.md)，做一个小数据过拟合实验。
-5. 读 [评估体系](./09-evaluation.md)，先学会判断模型有没有变好。
-6. 再进入 [RL 基础](./04-rl-foundations.md)、[GRPO/RLVR](./05-grpo-rlvr.md) 和 [工具、Agentic RL 与多轮环境](./08-tools-multiturn-agent.md)。
+1. 读 [Post-Training 全景与现代流水线](./01-overview.md)，先理解从 base 到 final model 的顺序和完整地图。
+2. 读 [数据、模板与 Renderer](./02-data-rendering.md)，理解为什么 chat template、thinking 和 tool schema 很重要。
+3. 读 [SFT](./03-sft.md)，做一个小数据过拟合实验。
+4. 读 [评估体系](./09-evaluation.md)，先学会判断模型有没有变好。
+5. 再进入 [RL 基础](./04-rl-foundations.md)、[GRPO/RLVR](./05-grpo-rlvr.md) 和 [工具、Agentic RL 与多轮环境](./08-tools-multiturn-agent.md)。
 
 ## 如果你想直接动手
 

@@ -32,8 +32,8 @@
 
 | 概念点 | 配套代码位置 |
 |---|---|
-| Base eval runner | [0. 现代后训练标准流水线](./00-modern-pipeline.md) |
-| 数据路由和多教师路由 | [0. 现代后训练标准流水线](./00-modern-pipeline.md) |
+| Base eval runner | [1. Post-Training 全景与现代流水线](./01-overview.md) |
+| 数据路由和多教师路由 | [1. Post-Training 全景与现代流水线](./01-overview.md) |
 | SFT labels / loss mask | [2. 数据、模板与 Renderer](./02-data-rendering.md) |
 | SFT loss | [3. SFT](./03-sft.md) |
 | REINFORCE / KL / PPO clipped loss | [4. RL 基础](./04-rl-foundations.md) |
